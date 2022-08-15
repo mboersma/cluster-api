@@ -21,7 +21,7 @@ require (
 	github.com/google/gofuzz v1.2.0
 	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/onsi/ginkgo/v2 v2.1.4
-	github.com/onsi/gomega v1.19.0
+	github.com/onsi/gomega v1.20.0
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
@@ -29,7 +29,7 @@ require (
 	github.com/valyala/fastjson v1.6.3
 	go.etcd.io/etcd/api/v3 v3.5.4
 	go.etcd.io/etcd/client/v3 v3.5.4
-	golang.org/x/net v0.0.0-20220617184016-355a448f1bc9
+	golang.org/x/net v0.0.0-20220812174116-3211cb980234
 	golang.org/x/oauth2 v0.0.0-20220608161450-d0670ef3b1eb
 	google.golang.org/grpc v1.47.0
 	inet.af/netaddr v0.0.0-20220617031823-097006376321
@@ -136,7 +136,7 @@ require (
 	go.uber.org/zap v1.19.1 // indirect
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a // indirect
+	golang.org/x/sys v0.0.0-20220728004956-3c1f35247d10 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
@@ -147,7 +147,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/cli-runtime v0.24.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42
 	sigs.k8s.io/json v0.0.0-20211208200746-9f7c6b3444d2 // indirect
