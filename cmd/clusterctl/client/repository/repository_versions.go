@@ -26,6 +26,7 @@ import (
 
 	clusterctlv1 "sigs.k8s.io/cluster-api/cmd/clusterctl/api/v1alpha3"
 	"sigs.k8s.io/cluster-api/cmd/clusterctl/internal/scheme"
+	logf "sigs.k8s.io/cluster-api/cmd/clusterctl/log"
 )
 
 const (
@@ -84,6 +85,9 @@ func latestRelease(ctx context.Context, repo Repository) (string, error) {
 
 // latestPatchRelease returns the latest patch release for a given Major and Minor version.
 func latestPatchRelease(ctx context.Context, repo Repository, major, minor *uint) (string, error) {
+	log := logf.Log
+	log.Info("latestPatchRelease", "major", major, "minor", minor, "repo", repo)
+
 	versions, err := repo.GetVersions(ctx)
 	if err != nil {
 		return "", errors.Wrapf(err, "failed to get repository versions")

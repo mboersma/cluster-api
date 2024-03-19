@@ -18,6 +18,7 @@ package clusterctl
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
@@ -86,6 +87,11 @@ func Init(ctx context.Context, input InitInput) {
 	clusterctlClient, log := getClusterctlClientWithLogger(ctx, input.ClusterctlConfigPath, "clusterctl-init.log", input.LogFolder)
 	defer log.Close()
 
+	jsonData, jsonErr := json.Marshal(initOpt)
+	if jsonErr != nil {
+		log.Write([]byte("failed to marshal init options: " + jsonErr.Error() + "\n"))
+	}
+	fmt.Fprintf(log, "clusterctl init options: %s\n", string(jsonData))
 	_, err := clusterctlClient.Init(ctx, initOpt)
 	Expect(err).ToNot(HaveOccurred(), "failed to run clusterctl init")
 }

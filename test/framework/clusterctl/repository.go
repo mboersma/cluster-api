@@ -19,6 +19,7 @@ package clusterctl
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -84,6 +85,9 @@ func CreateRepository(ctx context.Context, input CreateRepositoryInput) string {
 	Expect(input.E2EConfig).ToNot(BeNil(), "Invalid argument. input.E2EConfig can't be nil when calling CreateRepository")
 	Expect(os.MkdirAll(input.RepositoryFolder, 0750)).To(Succeed(), "Failed to create the clusterctl local repository folder %s", input.RepositoryFolder)
 
+	jsonData, jsonErr := json.Marshal(input)
+	Expect(jsonErr).NotTo(HaveOccurred(), "Failed to marshal input to JSON")
+	Byf("DEBUG: CreateRepository input: %s", string(jsonData))
 	providers := []providerConfig{}
 	providersV1_2 := []providerConfig{}
 	for _, provider := range input.E2EConfig.Providers {
