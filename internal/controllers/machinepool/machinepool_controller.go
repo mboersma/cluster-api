@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package machinepool
 
 import (
 	"context"
@@ -65,8 +65,8 @@ const (
 	MachinePoolControllerName = "machinepool-controller"
 )
 
-// MachinePoolReconciler reconciles a MachinePool object.
-type MachinePoolReconciler struct {
+// Reconciler reconciles a MachinePool object.
+type Reconciler struct {
 	Client    client.Client
 	APIReader client.Reader
 	Tracker   *remote.ClusterCacheTracker
@@ -80,7 +80,7 @@ type MachinePoolReconciler struct {
 	externalTracker external.ObjectTracker
 }
 
-func (r *MachinePoolReconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
+func (r *Reconciler) SetupWithManager(ctx context.Context, mgr ctrl.Manager, options controller.Options) error {
 	clusterToMachinePools, err := util.ClusterToTypedObjectsMapper(mgr.GetClient(), &expv1.MachinePoolList{}, mgr.GetScheme())
 	if err != nil {
 		return err
@@ -117,7 +117,7 @@ func (r *MachinePoolReconciler) SetupWithManager(ctx context.Context, mgr ctrl.M
 	return nil
 }
 
-func (r *MachinePoolReconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
+func (r *Reconciler) Reconcile(ctx context.Context, req ctrl.Request) (_ ctrl.Result, reterr error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	mp := &expv1.MachinePool{}
@@ -220,7 +220,7 @@ func (r *MachinePoolReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	return res, err
 }
 
-func (r *MachinePoolReconciler) reconcile(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) (ctrl.Result, error) {
+func (r *Reconciler) reconcile(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) (ctrl.Result, error) {
 	// Ensure the MachinePool is owned by the Cluster it belongs to.
 	mp.SetOwnerReferences(util.EnsureOwnerRef(mp.GetOwnerReferences(), metav1.OwnerReference{
 		APIVersion: clusterv1.GroupVersion.String(),
@@ -252,7 +252,7 @@ func (r *MachinePoolReconciler) reconcile(ctx context.Context, cluster *clusterv
 	return res, kerrors.NewAggregate(errs)
 }
 
-func (r *MachinePoolReconciler) reconcileDelete(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) error {
+func (r *Reconciler) reconcileDelete(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) error {
 	if ok, err := r.reconcileDeleteExternal(ctx, mp); !ok || err != nil {
 		// Return early and don't remove the finalizer if we got an error or
 		// the external reconciliation deletion isn't ready.
@@ -268,7 +268,7 @@ func (r *MachinePoolReconciler) reconcileDelete(ctx context.Context, cluster *cl
 	return nil
 }
 
-func (r *MachinePoolReconciler) reconcileDeleteNodes(ctx context.Context, cluster *clusterv1.Cluster, machinepool *expv1.MachinePool) error {
+func (r *Reconciler) reconcileDeleteNodes(ctx context.Context, cluster *clusterv1.Cluster, machinepool *expv1.MachinePool) error {
 	if len(machinepool.Status.NodeRefs) == 0 {
 		return nil
 	}
@@ -282,7 +282,7 @@ func (r *MachinePoolReconciler) reconcileDeleteNodes(ctx context.Context, cluste
 }
 
 // reconcileDeleteExternal tries to delete external references, returning true if it cannot find any.
-func (r *MachinePoolReconciler) reconcileDeleteExternal(ctx context.Context, m *expv1.MachinePool) (bool, error) {
+func (r *Reconciler) reconcileDeleteExternal(ctx context.Context, m *expv1.MachinePool) (bool, error) {
 	objects := []*unstructured.Unstructured{}
 	references := []*corev1.ObjectReference{
 		m.Spec.Template.Spec.Bootstrap.ConfigRef,
@@ -318,7 +318,7 @@ func (r *MachinePoolReconciler) reconcileDeleteExternal(ctx context.Context, m *
 	return len(objects) == 0, nil
 }
 
-func (r *MachinePoolReconciler) watchClusterNodes(ctx context.Context, cluster *clusterv1.Cluster) error {
+func (r *Reconciler) watchClusterNodes(ctx context.Context, cluster *clusterv1.Cluster) error {
 	log := ctrl.LoggerFrom(ctx)
 
 	if !conditions.IsTrue(cluster, clusterv1.ControlPlaneInitializedCondition) {
@@ -340,7 +340,7 @@ func (r *MachinePoolReconciler) watchClusterNodes(ctx context.Context, cluster *
 	})
 }
 
-func (r *MachinePoolReconciler) nodeToMachinePool(ctx context.Context, o client.Object) []reconcile.Request {
+func (r *Reconciler) nodeToMachinePool(ctx context.Context, o client.Object) []reconcile.Request {
 	node, ok := o.(*corev1.Node)
 	if !ok {
 		panic(fmt.Sprintf("Expected a Node but got a %T", o))

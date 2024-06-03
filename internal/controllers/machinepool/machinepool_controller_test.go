@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package machinepool
 
 import (
 	"testing"
@@ -111,7 +111,7 @@ func TestMachinePoolFinalizer(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			g := NewWithT(t)
 
-			mr := &MachinePoolReconciler{
+			mr := &Reconciler{
 				Client: fake.NewClientBuilder().WithObjects(
 					clusterCorrectMeta,
 					machinePoolValidCluster,
@@ -224,7 +224,7 @@ func TestMachinePoolOwnerReference(t *testing.T) {
 				machinePoolValidCluster,
 				machinePoolValidMachinePool,
 			).WithStatusSubresource(&expv1.MachinePool{}).Build()
-			mr := &MachinePoolReconciler{
+			mr := &Reconciler{
 				Client:    fakeClient,
 				APIReader: fakeClient,
 			}
@@ -423,7 +423,7 @@ func TestReconcileMachinePoolRequest(t *testing.T) {
 				builder.TestInfrastructureMachineTemplateCRD,
 			).WithStatusSubresource(&expv1.MachinePool{}).Build()
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client:    clientFake,
 				APIReader: clientFake,
 			}
@@ -544,7 +544,7 @@ func TestReconcileMachinePoolDeleteExternal(t *testing.T) {
 				objs = append(objs, infraConfig)
 			}
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client: fake.NewClientBuilder().WithObjects(objs...).Build(),
 			}
 
@@ -591,7 +591,7 @@ func TestRemoveMachinePoolFinalizerAfterDeleteReconcile(t *testing.T) {
 		},
 	}
 	key := client.ObjectKey{Namespace: m.Namespace, Name: m.Name}
-	mr := &MachinePoolReconciler{
+	mr := &Reconciler{
 		Client: fake.NewClientBuilder().WithObjects(testCluster, m).WithStatusSubresource(&expv1.MachinePool{}).Build(),
 	}
 	_, err := mr.Reconcile(ctx, reconcile.Request{NamespacedName: key})
@@ -861,7 +861,7 @@ func TestMachinePoolConditions(t *testing.T) {
 				builder.TestInfrastructureMachineTemplateCRD,
 			).WithStatusSubresource(&expv1.MachinePool{}).Build()
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client:    clientFake,
 				APIReader: clientFake,
 			}

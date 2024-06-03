@@ -14,5 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package controllers implements experimental controllers.
+// Package controllers contains external controller implementations for some of our API types.
 package controllers

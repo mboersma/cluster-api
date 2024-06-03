@@ -33,8 +33,6 @@ import (
 	"sigs.k8s.io/cluster-api/internal/webhooks/util"
 )
 
-var ctx = ctrl.SetupSignalHandler()
-
 func TestMachinePoolDefault(t *testing.T) {
 	g := NewWithT(t)
 
@@ -52,7 +50,7 @@ func TestMachinePoolDefault(t *testing.T) {
 		},
 	}
 	webhook := &MachinePool{}
-	ctx = admission.NewContextWithRequest(ctx, admission.Request{})
+	ctx = admission.NewContextWithRequest(ctrl.SetupSignalHandler(), admission.Request{})
 	t.Run("for MachinePool", util.CustomDefaultValidateTest(ctx, mp, webhook))
 	g.Expect(webhook.Default(ctx, mp)).To(Succeed())
 
@@ -250,6 +248,7 @@ func TestMachinePoolBootstrapValidation(t *testing.T) {
 		},
 	}
 
+	ctx := ctrl.SetupSignalHandler()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := NewWithT(t)
@@ -321,6 +320,7 @@ func TestMachinePoolNamespaceValidation(t *testing.T) {
 		},
 	}
 
+	ctx := ctrl.SetupSignalHandler()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := NewWithT(t)
@@ -378,6 +378,7 @@ func TestMachinePoolClusterNameImmutable(t *testing.T) {
 		},
 	}
 
+	ctx := ctrl.SetupSignalHandler()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := NewWithT(t)
@@ -444,6 +445,7 @@ func TestMachinePoolVersionValidation(t *testing.T) {
 		},
 	}
 
+	ctx := ctrl.SetupSignalHandler()
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
@@ -501,6 +503,7 @@ func TestMachinePoolMetadataValidation(t *testing.T) {
 		},
 	}
 
+	ctx := ctrl.SetupSignalHandler()
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			g := NewWithT(t)

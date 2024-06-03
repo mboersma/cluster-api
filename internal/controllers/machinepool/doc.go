@@ -1,5 +1,5 @@
 /*
-Copyright 2023 The Kubernetes Authors.
+Copyright 2024 The Kubernetes Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,18 +14,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package webhooks
-
-import (
-	ctrl "sigs.k8s.io/controller-runtime"
-
-	"sigs.k8s.io/cluster-api/exp/internal/webhooks"
-)
-
-// MachinePool implements a validating and defaulting webhook for MachinePool.
-type MachinePool struct{}
-
-// SetupWebhookWithManager sets up MachinePool webhooks.
-func (webhook *MachinePool) SetupWebhookWithManager(mgr ctrl.Manager) error {
-	return (&webhooks.MachinePool{}).SetupWebhookWithManager(mgr)
-}
+// Package machinepool implements a MachinePool controller.
+package machinepool
