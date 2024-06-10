@@ -328,14 +328,14 @@ func (dst *MachineHealthCheckList) ConvertFrom(srcRaw conversion.Hub) error {
 }
 
 func (src *MachinePool) ConvertTo(dstRaw conversion.Hub) error {
-	dst := dstRaw.(*expv1.MachinePool)
+	dst := dstRaw.(*clusterv1.MachinePool)
 
 	if err := Convert_v1alpha4_MachinePool_To_v1beta1_MachinePool(src, dst, nil); err != nil {
 		return err
 	}
 
 	// Manually restore data.
-	restored := &expv1.MachinePool{}
+	restored := &clusterv1.MachinePool{}
 	if ok, err := utilconversion.UnmarshalData(src, restored); err != nil || !ok {
 		return err
 	}
@@ -345,7 +345,7 @@ func (src *MachinePool) ConvertTo(dstRaw conversion.Hub) error {
 }
 
 func (dst *MachinePool) ConvertFrom(srcRaw conversion.Hub) error {
-	src := srcRaw.(*expv1.MachinePool)
+	src := srcRaw.(*clusterv1.MachinePool)
 
 	if err := Convert_v1beta1_MachinePool_To_v1alpha4_MachinePool(src, dst, nil); err != nil {
 		return err
@@ -354,13 +354,13 @@ func (dst *MachinePool) ConvertFrom(srcRaw conversion.Hub) error {
 }
 
 func (src *MachinePoolList) ConvertTo(dstRaw conversion.Hub) error {
-	dst := dstRaw.(*expv1.MachinePoolList)
+	dst := dstRaw.(*clusterv1.MachinePoolList)
 
 	return Convert_v1alpha4_MachinePoolList_To_v1beta1_MachinePoolList(src, dst, nil)
 }
 
 func (dst *MachinePoolList) ConvertFrom(srcRaw conversion.Hub) error {
-	src := srcRaw.(*expv1.MachinePoolList)
+	src := srcRaw.(*clusterv1.MachinePoolList)
 
 	return Convert_v1beta1_MachinePoolList_To_v1alpha4_MachinePoolList(src, dst, nil)
 }
@@ -430,10 +430,10 @@ func Convert_v1beta1_WorkersTopology_To_v1alpha4_WorkersTopology(in *clusterv1.W
 	return autoConvert_v1beta1_WorkersTopology_To_v1alpha4_WorkersTopology(in, out, s)
 }
 
-func Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in *clusterv1alpha4.MachineTemplateSpec, out *clusterv1.MachineTemplateSpec, s apimachineryconversion.Scope) error {
-	return clusterv1alpha4.Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in, out, s)
+func Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in *MachineTemplateSpec, out *clusterv1.MachineTemplateSpec, s apiconversion.Scope) error {
+	return Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in, out, s)
 }
 
-func Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in *clusterv1.MachineTemplateSpec, out *clusterv1alpha4.MachineTemplateSpec, s apimachineryconversion.Scope) error {
-	return clusterv1alpha4.Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in, out, s)
+func Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in *clusterv1.MachineTemplateSpec, out *MachineTemplateSpec, s apiconversion.Scope) error {
+	return Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in, out, s)
 }
