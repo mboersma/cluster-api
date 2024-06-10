@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package machinepool
 
 import (
 	"context"
@@ -51,7 +51,7 @@ import (
 	"sigs.k8s.io/cluster-api/util/patch"
 )
 
-func (r *MachinePoolReconciler) reconcilePhase(mp *expv1.MachinePool) {
+func (r *Reconciler) reconcilePhase(mp *expv1.MachinePool) {
 	// Set the phase to "pending" if nil.
 	if mp.Status.Phase == "" {
 		mp.Status.SetTypedPhase(expv1.MachinePoolPhasePending)
@@ -106,7 +106,7 @@ func (r *MachinePoolReconciler) reconcilePhase(mp *expv1.MachinePool) {
 }
 
 // reconcileExternal handles generic unstructured objects referenced by a MachinePool.
-func (r *MachinePoolReconciler) reconcileExternal(ctx context.Context, cluster *clusterv1.Cluster, m *expv1.MachinePool, ref *corev1.ObjectReference) (external.ReconcileOutput, error) {
+func (r *Reconciler) reconcileExternal(ctx context.Context, cluster *clusterv1.Cluster, m *expv1.MachinePool, ref *corev1.ObjectReference) (external.ReconcileOutput, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	if err := utilconversion.UpdateReferenceAPIContract(ctx, r.Client, ref); err != nil {
@@ -177,7 +177,7 @@ func (r *MachinePoolReconciler) reconcileExternal(ctx context.Context, cluster *
 }
 
 // reconcileBootstrap reconciles the Spec.Bootstrap.ConfigRef object on a MachinePool.
-func (r *MachinePoolReconciler) reconcileBootstrap(ctx context.Context, cluster *clusterv1.Cluster, m *expv1.MachinePool) (ctrl.Result, error) {
+func (r *Reconciler) reconcileBootstrap(ctx context.Context, cluster *clusterv1.Cluster, m *expv1.MachinePool) (ctrl.Result, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Call generic external reconciler if we have an external reference.
@@ -241,7 +241,7 @@ func (r *MachinePoolReconciler) reconcileBootstrap(ctx context.Context, cluster 
 }
 
 // reconcileInfrastructure reconciles the Spec.InfrastructureRef object on a MachinePool.
-func (r *MachinePoolReconciler) reconcileInfrastructure(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) (ctrl.Result, error) {
+func (r *Reconciler) reconcileInfrastructure(ctx context.Context, cluster *clusterv1.Cluster, mp *expv1.MachinePool) (ctrl.Result, error) {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Call generic external reconciler.
@@ -328,7 +328,7 @@ func (r *MachinePoolReconciler) reconcileInfrastructure(ctx context.Context, clu
 // infrastructure is created accordingly.
 // Note: When supported by the cloud provider implementation of the MachinePool, machines will provide a means to interact
 // with the corresponding infrastructure (e.g. delete a specific machine in case MachineHealthCheck detects it is unhealthy).
-func (r *MachinePoolReconciler) reconcileMachines(ctx context.Context, mp *expv1.MachinePool, infraMachinePool *unstructured.Unstructured) error {
+func (r *Reconciler) reconcileMachines(ctx context.Context, mp *expv1.MachinePool, infraMachinePool *unstructured.Unstructured) error {
 	log := ctrl.LoggerFrom(ctx)
 
 	var infraMachineKind string
@@ -384,7 +384,7 @@ func (r *MachinePoolReconciler) reconcileMachines(ctx context.Context, mp *expv1
 }
 
 // createOrUpdateMachines creates a MachinePool Machine for each infraMachine if it doesn't already exist and sets the owner reference and infraRef.
-func (r *MachinePoolReconciler) createOrUpdateMachines(ctx context.Context, mp *expv1.MachinePool, machines []clusterv1.Machine, infraMachines []unstructured.Unstructured) error {
+func (r *Reconciler) createOrUpdateMachines(ctx context.Context, mp *expv1.MachinePool, machines []clusterv1.Machine, infraMachines []unstructured.Unstructured) error {
 	log := ctrl.LoggerFrom(ctx)
 
 	// Construct a set of names of infraMachines that already have a Machine.
@@ -482,7 +482,7 @@ func computeDesiredMachine(mp *expv1.MachinePool, infraMachine *unstructured.Uns
 
 // infraMachineToMachinePoolMapper is a mapper function that maps an InfraMachine to the MachinePool that owns it.
 // This is used to trigger an update of the MachinePool when a InfraMachine is changed.
-func (r *MachinePoolReconciler) infraMachineToMachinePoolMapper(ctx context.Context, o client.Object) []ctrl.Request {
+func (r *Reconciler) infraMachineToMachinePoolMapper(ctx context.Context, o client.Object) []ctrl.Request {
 	log := ctrl.LoggerFrom(ctx)
 
 	if labels.IsMachinePoolOwned(o) {
@@ -506,7 +506,7 @@ func (r *MachinePoolReconciler) infraMachineToMachinePoolMapper(ctx context.Cont
 	return nil
 }
 
-func (r *MachinePoolReconciler) waitForMachineCreation(ctx context.Context, machineList []clusterv1.Machine) error {
+func (r *Reconciler) waitForMachineCreation(ctx context.Context, machineList []clusterv1.Machine) error {
 	_ = ctrl.LoggerFrom(ctx)
 
 	// waitForCacheUpdateTimeout is the amount of time allowed to wait for desired state.

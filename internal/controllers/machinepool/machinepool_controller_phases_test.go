@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package controllers
+package machinepool
 
 import (
 	"fmt"
@@ -126,7 +126,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		bootstrapConfig := defaultBootstrap.DeepCopy()
 		infraConfig := defaultInfra.DeepCopy()
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -155,7 +155,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		bootstrapConfig := defaultBootstrap.DeepCopy()
 		infraConfig := defaultInfra.DeepCopy()
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -182,7 +182,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		err = unstructured.SetNestedField(bootstrapConfig.Object, "secret-data", "status", "dataSecretName")
 		g.Expect(err).ToNot(HaveOccurred())
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -226,7 +226,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Status.NodeRefs = []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}}
 
 		fakeClient := fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:  fakeClient,
 			Tracker: remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), fakeClient, fakeClient, fakeClient.Scheme(), client.ObjectKey{Name: defaultCluster.Name, Namespace: defaultCluster.Namespace}),
 		}
@@ -283,7 +283,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Status.NodeRefs = []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}}
 
 		fakeClient := fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:  fakeClient,
 			Tracker: remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), fakeClient, fakeClient, fakeClient.Scheme(), client.ObjectKey{Name: defaultCluster.Name, Namespace: defaultCluster.Namespace}),
 		}
@@ -317,7 +317,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		// Set NodeRef.
 		machinepool.Status.NodeRefs = []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}}
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -358,7 +358,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Status.NodeRefs = []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}}
 
 		fakeClient := fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:  fakeClient,
 			Tracker: remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), fakeClient, fakeClient, fakeClient.Scheme(), client.ObjectKey{Name: defaultCluster.Name, Namespace: defaultCluster.Namespace}),
 		}
@@ -413,7 +413,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		}
 
 		fakeClient := fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:  fakeClient,
 			Tracker: remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), fakeClient, fakeClient, fakeClient.Scheme(), client.ObjectKey{Name: defaultCluster.Name, Namespace: defaultCluster.Namespace}),
 		}
@@ -473,7 +473,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.SetDeletionTimestamp(&deletionTimestamp)
 		machinepool.Finalizers = []string{expv1.MachinePoolFinalizer}
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -530,7 +530,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinePool.Status.ReadyReplicas = 1
 		machinePool.Status.Replicas = 1
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinePool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -609,7 +609,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinePool.Status.ReadyReplicas = 1
 		machinePool.Status.Replicas = 1
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinePool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 		}
 
@@ -920,7 +920,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 			}
 
 			bootstrapConfig := &unstructured.Unstructured{Object: tc.bootstrapConfig}
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client: fake.NewClientBuilder().WithObjects(tc.machinepool, bootstrapConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 			}
 
@@ -1208,7 +1208,7 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 			}
 
 			infraConfig := &unstructured.Unstructured{Object: tc.infraConfig}
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client: fake.NewClientBuilder().WithObjects(tc.machinepool, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 			}
 
@@ -1285,7 +1285,7 @@ func TestReconcileMachinePoolMachines(t *testing.T) {
 			}
 			g.Expect(env.Create(ctx, &unstructured.Unstructured{Object: infraConfig})).To(Succeed())
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client:   env,
 				ssaCache: ssa.NewCache(),
 			}
@@ -1346,7 +1346,7 @@ func TestReconcileMachinePoolMachines(t *testing.T) {
 			}
 			g.Expect(env.Create(ctx, &unstructured.Unstructured{Object: infraConfig})).To(Succeed())
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client:   env,
 				ssaCache: ssa.NewCache(),
 			}
@@ -1401,7 +1401,7 @@ func TestReconcileMachinePoolMachines(t *testing.T) {
 			}
 			g.Expect(env.Create(ctx, &unstructured.Unstructured{Object: infraConfig})).To(Succeed())
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client:   env,
 				ssaCache: ssa.NewCache(),
 			}
@@ -1558,7 +1558,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 				objs = append(objs, mp.DeepCopy())
 			}
 
-			r := &MachinePoolReconciler{
+			r := &Reconciler{
 				Client: fake.NewClientBuilder().WithObjects(objs...).Build(),
 			}
 
@@ -1695,7 +1695,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		g.Expect(err).ToNot(HaveOccurred())
 
 		fakeClient := fake.NewClientBuilder().WithObjects(testCluster, kubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:   fakeClient,
 			Tracker:  remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), env.GetClient(), env.GetClient(), env.GetClient().Scheme(), client.ObjectKey{Name: testCluster.Name, Namespace: testCluster.Namespace}),
 			recorder: record.NewFakeRecorder(32),
@@ -1752,7 +1752,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		g.Expect(err).ToNot(HaveOccurred())
 
 		fakeClient := fake.NewClientBuilder().WithObjects(testCluster, kubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:   fakeClient,
 			Tracker:  remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), env.GetClient(), env.GetClient(), env.GetClient().Scheme(), client.ObjectKey{Name: testCluster.Name, Namespace: testCluster.Namespace}),
 			recorder: record.NewFakeRecorder(32),
@@ -1791,7 +1791,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		err := unstructured.SetNestedField(infraConfig.Object, int64(0), "status", "replicas")
 		g.Expect(err).ToNot(HaveOccurred())
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:   fake.NewClientBuilder().WithObjects(testCluster, kubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 			recorder: record.NewFakeRecorder(32),
 		}
@@ -1825,7 +1825,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		err := unstructured.SetNestedField(infraConfig.Object, int64(0), "status", "replicas")
 		g.Expect(err).ToNot(HaveOccurred())
 
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:   fake.NewClientBuilder().WithObjects(testCluster, kubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
 			recorder: record.NewFakeRecorder(32),
 		}
@@ -1882,7 +1882,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		g.Expect(err).ToNot(HaveOccurred())
 
 		fakeClient := fake.NewClientBuilder().WithObjects(testCluster, kubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build()
-		r := &MachinePoolReconciler{
+		r := &Reconciler{
 			Client:   fakeClient,
 			Tracker:  remote.NewTestClusterCacheTracker(logr.New(log.NullLogSink{}), env.GetClient(), env.GetClient(), env.GetClient().Scheme(), client.ObjectKey{Name: testCluster.Name, Namespace: testCluster.Namespace}),
 			recorder: record.NewFakeRecorder(32),

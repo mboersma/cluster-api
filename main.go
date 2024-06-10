@@ -53,7 +53,6 @@ import (
 	addonscontrollers "sigs.k8s.io/cluster-api/exp/addons/controllers"
 	addonswebhooks "sigs.k8s.io/cluster-api/exp/addons/webhooks"
 	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
-	expcontrollers "sigs.k8s.io/cluster-api/exp/controllers"
 	ipamv1 "sigs.k8s.io/cluster-api/exp/ipam/api/v1beta1"
 	expipamwebhooks "sigs.k8s.io/cluster-api/exp/ipam/webhooks"
 	runtimev1 "sigs.k8s.io/cluster-api/exp/runtime/api/v1alpha1"
@@ -526,7 +525,7 @@ func setupReconcilers(ctx context.Context, mgr ctrl.Manager) webhooks.ClusterCac
 	}
 
 	if feature.Gates.Enabled(feature.MachinePool) {
-		if err := (&expcontrollers.MachinePoolReconciler{
+		if err := (&controllers.MachinePoolReconciler{
 			Client:           mgr.GetClient(),
 			APIReader:        mgr.GetAPIReader(),
 			Tracker:          tracker,
