@@ -26,7 +26,6 @@ import (
 	"k8s.io/apimachinery/pkg/util/intstr"
 
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
-	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
 )
 
 // ClusterBuilder holds the variables and objects required to build a clusterv1.Cluster.
@@ -1597,7 +1596,7 @@ func (m *MachinePoolBuilder) Build() *clusterv1.MachinePool {
 	obj := &clusterv1.MachinePool{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "MachinePool",
-			APIVersion: expv1.GroupVersion.String(),
+			APIVersion: clusterv1.GroupVersion.String(),
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      m.name,
