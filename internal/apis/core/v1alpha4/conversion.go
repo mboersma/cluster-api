@@ -327,6 +327,44 @@ func (dst *MachineHealthCheckList) ConvertFrom(srcRaw conversion.Hub) error {
 	return Convert_v1beta1_MachineHealthCheckList_To_v1alpha4_MachineHealthCheckList(src, dst, nil)
 }
 
+func (src *MachinePool) ConvertTo(dstRaw conversion.Hub) error {
+	dst := dstRaw.(*expv1.MachinePool)
+
+	if err := Convert_v1alpha4_MachinePool_To_v1beta1_MachinePool(src, dst, nil); err != nil {
+		return err
+	}
+
+	// Manually restore data.
+	restored := &expv1.MachinePool{}
+	if ok, err := utilconversion.UnmarshalData(src, restored); err != nil || !ok {
+		return err
+	}
+	dst.Spec.Template.Spec.NodeDeletionTimeout = restored.Spec.Template.Spec.NodeDeletionTimeout
+	dst.Spec.Template.Spec.NodeVolumeDetachTimeout = restored.Spec.Template.Spec.NodeVolumeDetachTimeout
+	return nil
+}
+
+func (dst *MachinePool) ConvertFrom(srcRaw conversion.Hub) error {
+	src := srcRaw.(*expv1.MachinePool)
+
+	if err := Convert_v1beta1_MachinePool_To_v1alpha4_MachinePool(src, dst, nil); err != nil {
+		return err
+	}
+	return utilconversion.MarshalData(src, dst)
+}
+
+func (src *MachinePoolList) ConvertTo(dstRaw conversion.Hub) error {
+	dst := dstRaw.(*expv1.MachinePoolList)
+
+	return Convert_v1alpha4_MachinePoolList_To_v1beta1_MachinePoolList(src, dst, nil)
+}
+
+func (dst *MachinePoolList) ConvertFrom(srcRaw conversion.Hub) error {
+	src := srcRaw.(*expv1.MachinePoolList)
+
+	return Convert_v1beta1_MachinePoolList_To_v1alpha4_MachinePoolList(src, dst, nil)
+}
+
 func Convert_v1alpha4_MachineStatus_To_v1beta1_MachineStatus(in *MachineStatus, out *clusterv1.MachineStatus, s apiconversion.Scope) error {
 	// Status.version has been removed in v1beta1, thus requiring custom conversion function. the information will be dropped.
 	return autoConvert_v1alpha4_MachineStatus_To_v1beta1_MachineStatus(in, out, s)
@@ -390,4 +428,12 @@ func Convert_v1beta1_WorkersClass_To_v1alpha4_WorkersClass(in *clusterv1.Workers
 func Convert_v1beta1_WorkersTopology_To_v1alpha4_WorkersTopology(in *clusterv1.WorkersTopology, out *WorkersTopology, s apiconversion.Scope) error {
 	// WorkersTopology.MachinePools has been added in v1beta1.
 	return autoConvert_v1beta1_WorkersTopology_To_v1alpha4_WorkersTopology(in, out, s)
+}
+
+func Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in *clusterv1alpha4.MachineTemplateSpec, out *clusterv1.MachineTemplateSpec, s apimachineryconversion.Scope) error {
+	return clusterv1alpha4.Convert_v1alpha4_MachineTemplateSpec_To_v1beta1_MachineTemplateSpec(in, out, s)
+}
+
+func Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in *clusterv1.MachineTemplateSpec, out *clusterv1alpha4.MachineTemplateSpec, s apimachineryconversion.Scope) error {
+	return clusterv1alpha4.Convert_v1beta1_MachineTemplateSpec_To_v1alpha4_MachineTemplateSpec(in, out, s)
 }
