@@ -240,7 +240,7 @@ func getMDTopologyFromMD(blueprint *scope.ClusterBlueprint, md *clusterv1.Machin
 	return mdTopology, nil
 }
 
-func getMPTopologyFromMP(blueprint *scope.ClusterBlueprint, mp *expv1.MachinePool) (*clusterv1.MachinePoolTopology, error) {
+func getMPTopologyFromMP(blueprint *scope.ClusterBlueprint, mp *clusterv1.MachinePool) (*clusterv1.MachinePoolTopology, error) {
 	topologyName, ok := mp.Labels[clusterv1.ClusterTopologyMachinePoolNameLabel]
 	if !ok {
 		return nil, errors.Errorf("failed to get topology name for %s", klog.KObj(mp))

@@ -1071,7 +1071,7 @@ func (g *generator) computeMachinePool(_ context.Context, s *scope.Scope, machin
 		return nil, errors.Wrap(err, "failed to generate name for MachinePool")
 	}
 
-	desiredMachinePoolObj := &expv1.MachinePool{
+	desiredMachinePoolObj := &clusterv1.MachinePool{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: expv1.GroupVersion.String(),
 			Kind:       "MachinePool",
@@ -1080,7 +1080,7 @@ func (g *generator) computeMachinePool(_ context.Context, s *scope.Scope, machin
 			Name:      name,
 			Namespace: s.Current.Cluster.Namespace,
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			ClusterName:     s.Current.Cluster.Name,
 			MinReadySeconds: minReadySeconds,
 			FailureDomains:  failureDomains,
