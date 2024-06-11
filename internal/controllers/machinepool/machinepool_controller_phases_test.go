@@ -38,7 +38,6 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/controllers/external"
 	"sigs.k8s.io/cluster-api/controllers/remote"
-	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
 	"sigs.k8s.io/cluster-api/internal/test/builder"
 	"sigs.k8s.io/cluster-api/internal/util/ssa"
 	"sigs.k8s.io/cluster-api/util/kubeconfig"
@@ -61,12 +60,12 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		},
 	}
 
-	defaultMachinePool := expv1.MachinePool{
+	defaultMachinePool := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-test",
 			Namespace: metav1.NamespaceDefault,
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			ClusterName: defaultCluster.Name,
 			Replicas:    ptr.To[int32](1),
 			Template: clusterv1.MachineTemplateSpec{
@@ -164,7 +163,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhasePending))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhasePending))
 	})
 
 	t.Run("Should set `Provisioning` when bootstrap is ready", func(t *testing.T) {
@@ -191,7 +190,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseProvisioning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseProvisioning))
 	})
 
 	t.Run("Should set `Running` when bootstrap and infra is ready", func(t *testing.T) {
@@ -239,7 +238,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Status.ReadyReplicas = 1
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 	})
 
 	t.Run("Should set `Running` when bootstrap, infra, and ready replicas equals spec replicas", func(t *testing.T) {
@@ -296,7 +295,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Status.ReadyReplicas = 1
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 	})
 
 	t.Run("Should set `Provisioned` when there is a NodeRef but infra is not ready ", func(t *testing.T) {
@@ -326,7 +325,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseProvisioned))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseProvisioned))
 	})
 
 	t.Run("Should set `ScalingUp` when infra is scaling up", func(t *testing.T) {
@@ -374,7 +373,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Spec.Replicas = ptr.To[int32](5)
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseScalingUp))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseScalingUp))
 	})
 
 	t.Run("Should set `ScalingDown` when infra is scaling down", func(t *testing.T) {
@@ -429,7 +428,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		machinepool.Spec.Replicas = ptr.To[int32](1)
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseScalingDown))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseScalingDown))
 	})
 
 	t.Run("Should set `Deleting` when MachinePool is being deleted", func(t *testing.T) {
@@ -471,7 +470,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 
 		// Set Deletion Timestamp.
 		machinepool.SetDeletionTimestamp(&deletionTimestamp)
-		machinepool.Finalizers = []string{expv1.MachinePoolFinalizer}
+		machinepool.Finalizers = []string{clusterv1.MachinePoolFinalizer}
 
 		r := &Reconciler{
 			Client: fake.NewClientBuilder().WithObjects(defaultCluster, defaultKubeconfigSecret, machinepool, bootstrapConfig, infraConfig, builder.TestBootstrapConfigCRD, builder.TestInfrastructureMachineTemplateCRD).Build(),
@@ -482,7 +481,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseDeleting))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseDeleting))
 	})
 
 	t.Run("Should keep `Running` when MachinePool bootstrap config is changed to another ready one", func(t *testing.T) {
@@ -539,7 +538,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinePool)
-		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 		g.Expect(*machinePool.Spec.Template.Spec.Bootstrap.DataSecretName).To(Equal("secret-data"))
 
 		// Change bootstrap reference.
@@ -561,7 +560,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		r.reconcilePhase(machinePool)
 		g.Expect(*machinePool.Spec.Template.Spec.Bootstrap.DataSecretName).To(Equal("secret-data-new"))
 		g.Expect(machinePool.Status.BootstrapReady).To(BeTrue())
-		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 	})
 
 	t.Run("Should keep `Running` when MachinePool bootstrap config is changed to a non-ready one", func(t *testing.T) {
@@ -618,7 +617,7 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinePool)
-		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 		g.Expect(*machinePool.Spec.Template.Spec.Bootstrap.DataSecretName).To(Equal("secret-data"))
 
 		// Change bootstrap reference
@@ -649,12 +648,12 @@ func TestReconcileMachinePoolPhases(t *testing.T) {
 
 		// There is no phase defined for "changing to new bootstrap config", so it should still be `Running` the
 		// old configuration
-		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinePool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 	})
 }
 
 func TestReconcileMachinePoolBootstrap(t *testing.T) {
-	defaultMachinePool := expv1.MachinePool{
+	defaultMachinePool := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-test",
 			Namespace: metav1.NamespaceDefault,
@@ -662,7 +661,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 				clusterv1.ClusterNameLabel: clusterName,
 			},
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			Template: clusterv1.MachineTemplateSpec{
 				Spec: clusterv1.MachineSpec{
 					Bootstrap: clusterv1.Bootstrap{
@@ -687,10 +686,10 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 	testCases := []struct {
 		name            string
 		bootstrapConfig map[string]interface{}
-		machinepool     *expv1.MachinePool
+		machinepool     *clusterv1.MachinePool
 		expectError     bool
 		expectResult    ctrl.Result
-		expected        func(g *WithT, m *expv1.MachinePool)
+		expected        func(g *WithT, m *clusterv1.MachinePool)
 	}{
 		{
 			name: "new machinepool, bootstrap config ready with data",
@@ -708,7 +707,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 				},
 			},
 			expectError: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeTrue())
 				g.Expect(m.Spec.Template.Spec.Bootstrap.DataSecretName).ToNot(BeNil())
 				g.Expect(*m.Spec.Template.Spec.Bootstrap.DataSecretName).To(ContainSubstring("secret-data"))
@@ -729,7 +728,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 				},
 			},
 			expectError: true,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeFalse())
 				g.Expect(m.Spec.Template.Spec.Bootstrap.DataSecretName).To(BeNil())
 			},
@@ -748,7 +747,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 			},
 			expectError:  false,
 			expectResult: ctrl.Result{},
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeFalse())
 			},
 		},
@@ -765,7 +764,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 				"status": map[string]interface{}{},
 			},
 			expectError: true,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeFalse())
 			},
 		},
@@ -798,12 +797,12 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 					"dataSecretName": "secret-data",
 				},
 			},
-			machinepool: &expv1.MachinePool{
+			machinepool: &clusterv1.MachinePool{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "bootstrap-test-existing",
 					Namespace: metav1.NamespaceDefault,
 				},
-				Spec: expv1.MachinePoolSpec{
+				Spec: clusterv1.MachinePoolSpec{
 					Template: clusterv1.MachineTemplateSpec{
 						Spec: clusterv1.MachineSpec{
 							Bootstrap: clusterv1.Bootstrap{
@@ -817,12 +816,12 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 						},
 					},
 				},
-				Status: expv1.MachinePoolStatus{
+				Status: clusterv1.MachinePoolStatus{
 					BootstrapReady: true,
 				},
 			},
 			expectError: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeTrue())
 				g.Expect(*m.Spec.Template.Spec.Bootstrap.DataSecretName).To(Equal("secret-data"))
 			},
@@ -842,12 +841,12 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 					"dataSecretName": "secret-data",
 				},
 			},
-			machinepool: &expv1.MachinePool{
+			machinepool: &clusterv1.MachinePool{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "bootstrap-test-existing",
 					Namespace: metav1.NamespaceDefault,
 				},
-				Spec: expv1.MachinePoolSpec{
+				Spec: clusterv1.MachinePoolSpec{
 					Template: clusterv1.MachineTemplateSpec{
 						Spec: clusterv1.MachineSpec{
 							Bootstrap: clusterv1.Bootstrap{
@@ -856,12 +855,12 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 						},
 					},
 				},
-				Status: expv1.MachinePoolStatus{
+				Status: clusterv1.MachinePoolStatus{
 					BootstrapReady: true,
 				},
 			},
 			expectError: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeTrue())
 				g.Expect(*m.Spec.Template.Spec.Bootstrap.DataSecretName).To(Equal("data"))
 			},
@@ -881,12 +880,12 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 					"data":  "#!/bin/bash ... data",
 				},
 			},
-			machinepool: &expv1.MachinePool{
+			machinepool: &clusterv1.MachinePool{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "bootstrap-test-existing",
 					Namespace: metav1.NamespaceDefault,
 				},
-				Spec: expv1.MachinePoolSpec{
+				Spec: clusterv1.MachinePoolSpec{
 					Template: clusterv1.MachineTemplateSpec{
 						Spec: clusterv1.MachineSpec{
 							Bootstrap: clusterv1.Bootstrap{
@@ -900,13 +899,13 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 						},
 					},
 				},
-				Status: expv1.MachinePoolStatus{
+				Status: clusterv1.MachinePoolStatus{
 					BootstrapReady: false,
 				},
 			},
 			expectError:  false,
 			expectResult: ctrl.Result{},
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.BootstrapReady).To(BeFalse())
 			},
 		},
@@ -940,7 +939,7 @@ func TestReconcileMachinePoolBootstrap(t *testing.T) {
 }
 
 func TestReconcileMachinePoolInfrastructure(t *testing.T) {
-	defaultMachinePool := expv1.MachinePool{
+	defaultMachinePool := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-test",
 			Namespace: metav1.NamespaceDefault,
@@ -948,7 +947,7 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 				clusterv1.ClusterNameLabel: clusterName,
 			},
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			Replicas: ptr.To[int32](1),
 			Template: clusterv1.MachineTemplateSpec{
 				Spec: clusterv1.MachineSpec{
@@ -980,11 +979,11 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 		name               string
 		bootstrapConfig    map[string]interface{}
 		infraConfig        map[string]interface{}
-		machinepool        *expv1.MachinePool
+		machinepool        *clusterv1.MachinePool
 		expectError        bool
 		expectChanged      bool
 		expectRequeueAfter bool
-		expected           func(g *WithT, m *expv1.MachinePool)
+		expected           func(g *WithT, m *clusterv1.MachinePool)
 	}{
 		{
 			name: "new machinepool, infrastructure config ready",
@@ -1016,18 +1015,18 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 			},
 			expectError:   false,
 			expectChanged: true,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.InfrastructureReady).To(BeTrue())
 			},
 		},
 		{
 			name: "ready bootstrap, infra, and nodeRef, machinepool is running, infra object is deleted, expect failed",
-			machinepool: &expv1.MachinePool{
+			machinepool: &clusterv1.MachinePool{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "machinepool-test",
 					Namespace: metav1.NamespaceDefault,
 				},
-				Spec: expv1.MachinePoolSpec{
+				Spec: clusterv1.MachinePoolSpec{
 					Replicas: ptr.To[int32](1),
 					Template: clusterv1.MachineTemplateSpec{
 						Spec: clusterv1.MachineSpec{
@@ -1046,7 +1045,7 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 						},
 					},
 				},
-				Status: expv1.MachinePoolStatus{
+				Status: clusterv1.MachinePoolStatus{
 					BootstrapReady:      true,
 					InfrastructureReady: true,
 					NodeRefs:            []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}},
@@ -1072,11 +1071,11 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 			},
 			expectError:        true,
 			expectRequeueAfter: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.InfrastructureReady).To(BeTrue())
 				g.Expect(m.Status.FailureMessage).ToNot(BeNil())
 				g.Expect(m.Status.FailureReason).ToNot(BeNil())
-				g.Expect(m.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseFailed))
+				g.Expect(m.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseFailed))
 			},
 		},
 		{
@@ -1112,18 +1111,18 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 			},
 			expectError:   false,
 			expectChanged: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.InfrastructureReady).To(BeFalse())
 			},
 		},
 		{
 			name: "ready bootstrap, infra, and nodeRef, machinepool is running, replicas 0, providerIDList not set",
-			machinepool: &expv1.MachinePool{
+			machinepool: &clusterv1.MachinePool{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "machinepool-test",
 					Namespace: metav1.NamespaceDefault,
 				},
-				Spec: expv1.MachinePoolSpec{
+				Spec: clusterv1.MachinePoolSpec{
 					Replicas: ptr.To[int32](0),
 					Template: clusterv1.MachineTemplateSpec{
 						Spec: clusterv1.MachineSpec{
@@ -1142,7 +1141,7 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 						},
 					},
 				},
-				Status: expv1.MachinePoolStatus{
+				Status: clusterv1.MachinePoolStatus{
 					BootstrapReady:      true,
 					InfrastructureReady: true,
 					NodeRefs:            []corev1.ObjectReference{{Kind: "Node", Name: "machinepool-test-node"}},
@@ -1187,14 +1186,14 @@ func TestReconcileMachinePoolInfrastructure(t *testing.T) {
 			},
 			expectError:        false,
 			expectRequeueAfter: false,
-			expected: func(g *WithT, m *expv1.MachinePool) {
+			expected: func(g *WithT, m *clusterv1.MachinePool) {
 				g.Expect(m.Status.InfrastructureReady).To(BeTrue())
 				g.Expect(m.Status.ReadyReplicas).To(Equal(int32(0)))
 				g.Expect(m.Status.AvailableReplicas).To(Equal(int32(0)))
 				g.Expect(m.Status.UnavailableReplicas).To(Equal(int32(0)))
 				g.Expect(m.Status.FailureMessage).To(BeNil())
 				g.Expect(m.Status.FailureReason).To(BeNil())
-				g.Expect(m.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+				g.Expect(m.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 			},
 		},
 	}
@@ -1422,7 +1421,7 @@ func TestReconcileMachinePoolMachines(t *testing.T) {
 }
 
 func TestInfraMachineToMachinePoolMapper(t *testing.T) {
-	machinePool1 := expv1.MachinePool{
+	machinePool1 := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-1",
 			Namespace: metav1.NamespaceDefault,
@@ -1432,7 +1431,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 		},
 	}
 
-	machinePool2 := expv1.MachinePool{
+	machinePool2 := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-2",
 			Namespace: "other-namespace",
@@ -1442,7 +1441,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 		},
 	}
 
-	machinePool3 := expv1.MachinePool{
+	machinePool3 := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-3",
 			Namespace: metav1.NamespaceDefault,
@@ -1452,7 +1451,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 		},
 	}
 
-	machinePoolLongName := expv1.MachinePool{
+	machinePoolLongName := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-very-long", // Use a name longer than 64 characters to trigger a hash
 			Namespace: metav1.NamespaceDefault,
@@ -1510,13 +1509,13 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 	testCases := []struct {
 		name                string
 		infraMachine        *unstructured.Unstructured
-		machinepools        []expv1.MachinePool
-		expectedMachinePool *expv1.MachinePool
+		machinepools        []clusterv1.MachinePool
+		expectedMachinePool *clusterv1.MachinePool
 	}{
 		{
 			name:         "match machinePool name with label value",
 			infraMachine: &infraMachine1,
-			machinepools: []expv1.MachinePool{
+			machinepools: []clusterv1.MachinePool{
 				machinePool1,
 				machinePool2,
 				machinePool3,
@@ -1527,7 +1526,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 		{
 			name:         "match hash of machinePool name with label hash",
 			infraMachine: &infraMachine2,
-			machinepools: []expv1.MachinePool{
+			machinepools: []clusterv1.MachinePool{
 				machinePool1,
 				machinePool2,
 				machinePool3,
@@ -1538,7 +1537,7 @@ func TestInfraMachineToMachinePoolMapper(t *testing.T) {
 		{
 			name:         "return nil if no machinePool matches",
 			infraMachine: &infraMachine3,
-			machinepools: []expv1.MachinePool{
+			machinepools: []clusterv1.MachinePool{
 				machinePool1,
 				machinePool2,
 				machinePool3,
@@ -1593,12 +1592,12 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		g.Expect(env.CleanupAndWait(ctx, do...)).To(Succeed())
 	}(testCluster)
 
-	defaultMachinePool := expv1.MachinePool{
+	defaultMachinePool := clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "machinepool-test",
 			Namespace: ns.Name,
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			ClusterName: testCluster.Name,
 			Template: clusterv1.MachineTemplateSpec{
 				Spec: clusterv1.MachineSpec{
@@ -1618,7 +1617,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 			},
 			MinReadySeconds: ptr.To[int32](0),
 		},
-		Status: expv1.MachinePoolStatus{},
+		Status: clusterv1.MachinePoolStatus{},
 	}
 
 	defaultBootstrap := &unstructured.Unstructured{
@@ -1707,7 +1706,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 
 		r.reconcilePhase(machinepool)
 
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseScalingDown))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseScalingDown))
 
 		delNode := &corev1.Node{}
 		g.Expect(env.Get(ctx, client.ObjectKeyFromObject(node), delNode)).To(Succeed())
@@ -1763,7 +1762,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 		g.Expect(res.Requeue).To(BeFalse())
 
 		r.reconcilePhase(machinepool)
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 
 		delNode := &corev1.Node{}
 		err = env.GetAPIReader().Get(ctx, client.ObjectKeyFromObject(node), delNode)
@@ -1802,7 +1801,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 
 		r.reconcilePhase(machinepool)
 
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 	})
 
 	t.Run("Should set `ScalingUp` when scaling from zero to one", func(t *testing.T) {
@@ -1836,7 +1835,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 
 		r.reconcilePhase(machinepool)
 
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseScalingUp))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseScalingUp))
 	})
 
 	t.Run("Should set `Running` when scaled from zero to one", func(t *testing.T) {
@@ -1894,7 +1893,7 @@ func TestReconcileMachinePoolScaleToFromZero(t *testing.T) {
 
 		r.reconcilePhase(machinepool)
 
-		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(expv1.MachinePoolPhaseRunning))
+		g.Expect(machinepool.Status.GetTypedPhase()).To(Equal(clusterv1.MachinePoolPhaseRunning))
 
 		delNode := &corev1.Node{}
 		g.Expect(env.Get(ctx, client.ObjectKeyFromObject(node), delNode)).To(Succeed())
@@ -1954,8 +1953,8 @@ func getMachines(replicas int, mpName, clusterName, nsName string) []clusterv1.M
 	return machines
 }
 
-func getMachinePool(replicas int, mpName, clusterName, nsName string) expv1.MachinePool {
-	return expv1.MachinePool{
+func getMachinePool(replicas int, mpName, clusterName, nsName string) clusterv1.MachinePool {
+	return clusterv1.MachinePool{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      mpName,
 			Namespace: nsName,
@@ -1963,7 +1962,7 @@ func getMachinePool(replicas int, mpName, clusterName, nsName string) expv1.Mach
 				clusterv1.ClusterNameLabel: clusterName,
 			},
 		},
-		Spec: expv1.MachinePoolSpec{
+		Spec: clusterv1.MachinePoolSpec{
 			ClusterName: clusterName,
 			Replicas:    ptr.To[int32](int32(replicas)),
 			Template: clusterv1.MachineTemplateSpec{

@@ -84,7 +84,7 @@ func TestMPUpgrading(t *testing.T) {
 		stableMP := builder.MachinePool("ns", "stableMP").
 			WithClusterName("cluster1").
 			WithVersion("v1.2.3").
-			WithStatus(expv1.MachinePoolStatus{
+			WithStatus(clusterv1.MachinePoolStatus{
 				NodeRefs: []corev1.ObjectReference{
 					{
 						Name: "stableMP-node1",
@@ -103,7 +103,7 @@ func TestMPUpgrading(t *testing.T) {
 		upgradingMP := builder.MachinePool("ns", "upgradingMP").
 			WithClusterName("cluster2").
 			WithVersion("v1.2.3").
-			WithStatus(expv1.MachinePoolStatus{
+			WithStatus(clusterv1.MachinePoolStatus{
 				NodeRefs: []corev1.ObjectReference{
 					{
 						Name: "upgradingMP-node1",

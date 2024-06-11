@@ -40,7 +40,6 @@ import (
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
 	"sigs.k8s.io/cluster-api/controllers/external"
 	controlplanev1 "sigs.k8s.io/cluster-api/controlplane/kubeadm/api/v1beta1"
-	expv1 "sigs.k8s.io/cluster-api/exp/api/v1beta1"
 	"sigs.k8s.io/cluster-api/internal/contract"
 	"sigs.k8s.io/cluster-api/internal/controllers/topology/machineset"
 	"sigs.k8s.io/cluster-api/test/e2e/internal/log"
@@ -931,7 +930,7 @@ func getMDTopology(cluster *clusterv1.Cluster, md *clusterv1.MachineDeployment) 
 }
 
 // getMPClass looks up the MachinePoolClass for a MachinePool in the ClusterClass.
-func getMPClass(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, mp *expv1.MachinePool) *clusterv1.MachinePoolClass {
+func getMPClass(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass, mp *clusterv1.MachinePool) *clusterv1.MachinePoolClass {
 	mpTopology := getMPTopology(cluster, mp)
 
 	for _, mdClass := range clusterClass.Spec.Workers.MachinePools {
@@ -944,7 +943,7 @@ func getMPClass(cluster *clusterv1.Cluster, clusterClass *clusterv1.ClusterClass
 }
 
 // getMPTopology looks up the MachinePoolTopology for a mp in the Cluster.
-func getMPTopology(cluster *clusterv1.Cluster, mp *expv1.MachinePool) *clusterv1.MachinePoolTopology {
+func getMPTopology(cluster *clusterv1.Cluster, mp *clusterv1.MachinePool) *clusterv1.MachinePoolTopology {
 	for _, mpTopology := range cluster.Spec.Topology.Workers.MachinePools {
 		if mpTopology.Name == mp.Labels[clusterv1.ClusterTopologyMachinePoolNameLabel] {
 			return &mpTopology
@@ -1084,7 +1083,7 @@ type clusterObjects struct {
 	MachinesByMachineSet           map[string][]*clusterv1.Machine
 	NodesByMachine                 map[string]*corev1.Node
 
-	MachinePools []*expv1.MachinePool
+	MachinePools []*clusterv1.MachinePool
 
 	InfrastructureMachineTemplateByMachineDeployment map[string]*unstructured.Unstructured
 	BootstrapConfigTemplateByMachineDeployment       map[string]*unstructured.Unstructured
@@ -1180,7 +1179,7 @@ func getClusterObjects(ctx context.Context, g Gomega, clusterProxy framework.Clu
 	// MachinePools.
 	for _, mpTopology := range cluster.Spec.Topology.Workers.MachinePools {
 		// Get MachinePool for the current MachinePoolTopology.
-		mpList := &expv1.MachinePoolList{}
+		mpList := &clusterv1.MachinePoolList{}
 		g.Expect(mgmtClient.List(ctx, mpList, client.InNamespace(cluster.Namespace), client.MatchingLabels{
 			clusterv1.ClusterTopologyMachinePoolNameLabel: mpTopology.Name,
 		})).To(Succeed())
@@ -1334,7 +1333,7 @@ func modifyMachinePoolViaClusterAndWait(ctx context.Context, input modifyMachine
 			log.Logf("Waiting for MachinePool rollout for MachinePoolTopology %q to complete.", mpTopology.Name)
 			Eventually(func(g Gomega) {
 				// Get MachinePool for the current MachinePoolTopology.
-				mpList := &expv1.MachinePoolList{}
+				mpList := &clusterv1.MachinePoolList{}
 				g.Expect(mgmtClient.List(ctx, mpList, client.InNamespace(input.Cluster.Namespace), client.MatchingLabels{
 					clusterv1.ClusterTopologyMachinePoolNameLabel: mpTopology.Name,
 				})).To(Succeed())
