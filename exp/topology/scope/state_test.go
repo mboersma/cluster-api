@@ -77,6 +77,7 @@ func TestMPUpgrading(t *testing.T) {
 	scheme := runtime.NewScheme()
 	g.Expect(expv1.AddToScheme(scheme)).To(Succeed())
 	g.Expect(corev1.AddToScheme(scheme)).To(Succeed())
+	g.Expect(clusterv1.AddToScheme(scheme)).To(Succeed())
 
 	ctx := context.Background()
 

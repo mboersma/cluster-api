@@ -32,6 +32,7 @@ import (
 
 func TestGetMachinePoolByLabels(t *testing.T) {
 	g := NewWithT(t)
+	g.Expect(clusterv1.AddToScheme(fakeScheme)).To(Succeed())
 
 	longMachinePoolName := "this-is-a-very-long-machinepool-name-that-will-turned-into-a-hash-because-it-is-longer-than-63-characters"
 	namespace := "default"
