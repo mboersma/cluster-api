@@ -58,7 +58,7 @@ func TestFuzzyConversion(t *testing.T) {
 	t.Run("for MachinePool", utilconversion.FuzzTestFunc(utilconversion.FuzzTestFuncInput{
 		Hub:         &clusterv1.MachinePool{},
 		Spoke:       &MachinePool{},
-		FuzzerFuncs: []fuzzer.FuzzerFuncs{BootstrapFuzzFuncs, MachinePoolSpecFuzzer, CustomObjectMetaFuzzFunc},
+		FuzzerFuncs: []fuzzer.FuzzerFuncs{BootstrapFuzzFuncs, MachinePoolSpecFuzzFuncs, CustomObjectMetaFuzzFunc},
 	}))
 
 	t.Run("for MachineHealthCheck", utilconversion.FuzzTestFunc(utilconversion.FuzzTestFuncInput{
