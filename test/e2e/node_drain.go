@@ -34,6 +34,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	clusterv1 "sigs.k8s.io/cluster-api/api/v1beta1"
+	"sigs.k8s.io/cluster-api/test/e2e/internal/log"
 	"sigs.k8s.io/cluster-api/test/framework"
 	"sigs.k8s.io/cluster-api/test/framework/clusterctl"
 	"sigs.k8s.io/cluster-api/util"
@@ -151,6 +152,10 @@ func NodeDrainTimeoutSpec(ctx context.Context, inputGetter func() NodeDrainTimeo
 			WaitForMachineDeployments:    input.E2EConfig.GetIntervals(specName, "wait-worker-nodes"),
 		}, clusterResources)
 		cluster := clusterResources.Cluster
+		// Log the cluster object and whether or not its topology and control plane are null
+		log.Logf("Cluster: %v", cluster)
+		Expect(cluster.Spec.Topology).NotTo(BeNil(), "Invalid cluster topology for %s spec", specName)
+		Expect(cluster.Spec.Topology.ControlPlane).NotTo(BeNil(), "Invalid cluster control plane for %s spec", specName)
 		controlplane := clusterResources.ControlPlane
 		machineDeployments := clusterResources.MachineDeployments
 		Expect(machineDeployments[0].Spec.Replicas).To(Equal(ptr.To[int32](1)))
