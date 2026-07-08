@@ -260,6 +260,25 @@ func (k *proxy) ListResources(ctx context.Context, labels map[string]string, nam
 		}
 	}
 
+	// Build the set of custom resource GVKs whose CRD is not managed by clusterctl. clusterctl
+	// only ever labels its own components, so custom resources from unrelated CRDs (for example the
+	// many CRDs installed by Azure Service Operator) can never match the requested labels. Skipping
+	// them avoids one List request per unrelated resource kind, which otherwise exhausts the client
+	// rate limiter on clusters with a large number of CRDs.
+	crdsToSkip := sets.Set[string]{}
+	for _, crd := range crdList.Items {
+		if _, ok := crd.Labels[clusterctlv1.ClusterctlLabel]; ok {
+			continue
+		}
+		for _, version := range crd.Spec.Versions {
+			crdsToSkip.Insert(metav1.GroupVersionKind{
+				Group:   crd.Spec.Group,
+				Version: version.Name,
+				Kind:    crd.Spec.Names.Kind,
+			}.String())
+		}
+	}
+
 	// Select resources with list and delete methods (list is required by this method, delete by the callers of this method)
 	resourceList = discovery.FilteredBy(discovery.SupportsAllVerbs{Verbs: []string{"list", "delete"}}, resourceList)
 
@@ -278,6 +297,15 @@ func (k *proxy) ListResources(ctx context.Context, labels map[string]string, nam
 				return nil, errors.Wrapf(err, "failed to parse GroupVersion")
 			}
 			if crdsToExclude.Has(metav1.GroupVersionKind{
+				Group:   gv.Group,
+				Version: gv.Version,
+				Kind:    resourceKind.Kind,
+			}.String()) {
+				continue
+			}
+
+			// Continue if the resource is a custom resource from a CRD not managed by clusterctl.
+			if crdsToSkip.Has(metav1.GroupVersionKind{
 				Group:   gv.Group,
 				Version: gv.Version,
 				Kind:    resourceKind.Kind,
